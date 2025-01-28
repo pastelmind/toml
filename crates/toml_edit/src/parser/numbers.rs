@@ -13,6 +13,7 @@ use winnow::token::take;
 
 use crate::parser::prelude::*;
 use crate::parser::trivia::from_utf8_unchecked;
+use crate::Integer;
 
 // ;; Boolean
 
@@ -37,14 +38,16 @@ const FALSE: &[u8] = b"false";
 // ;; Integer
 
 // integer = dec-int / hex-int / oct-int / bin-int
-pub(crate) fn integer(input: &mut Input<'_>) -> ModalResult<i64> {
+pub(crate) fn integer(input: &mut Input<'_>) -> ModalResult<Integer> {
     trace("integer",
     dispatch! {peek(opt::<_, &[u8], _, _>(take(2usize)));
-        Some(b"0x") => cut_err(hex_int.try_map(|s| i64::from_str_radix(&s.replace('_', ""), 16))),
-        Some(b"0o") => cut_err(oct_int.try_map(|s| i64::from_str_radix(&s.replace('_', ""), 8))),
-        Some(b"0b") => cut_err(bin_int.try_map(|s| i64::from_str_radix(&s.replace('_', ""), 2))),
+        Some(b"0x") => cut_err(hex_int.try_map(|s| i64::from_str_radix(&s.replace('_', ""), 16).map(|value| 
+            Integer::new_hex_unspecified(value).unwrap()
+        ))),
+        Some(b"0o") => cut_err(oct_int.try_map(|s| i64::from_str_radix(&s.replace('_', ""), 8).map(|value| Integer::new_oct(value).unwrap()))),
+        Some(b"0b") => cut_err(bin_int.try_map(|s| i64::from_str_radix(&s.replace('_', ""), 2).map(|value| Integer::new_bin(value).unwrap()))),
         _ => dec_int.and_then(cut_err(rest
-            .try_map(|s: &str| s.replace('_', "").parse())))
+            .try_map(|s: &str| s.replace('_', "").parse().map(Integer::new))))
     })
     .parse_next(input)
 }
@@ -326,18 +329,21 @@ mod test {
     #[test]
     fn integers() {
         let cases = [
-            ("+99", 99),
-            ("42", 42),
-            ("0", 0),
-            ("-17", -17),
-            ("1_000", 1_000),
-            ("5_349_221", 5_349_221),
-            ("1_2_3_4_5", 1_2_3_4_5),
-            ("0xF", 15),
-            ("0o0_755", 493),
-            ("0b1_0_1", 5),
-            (&i64::MIN.to_string()[..], i64::MIN),
-            (&i64::MAX.to_string()[..], i64::MAX),
+            ("+99", Integer::new(99)),
+            ("42", Integer::new(42)),
+            ("0", Integer::new(0)),
+            ("-17", Integer::new(-17)),
+            ("1_000", Integer::new(1_000)),
+            ("5_349_221", Integer::new(5_349_221)),
+            ("1_2_3_4_5", Integer::new(1_2_3_4_5)),
+            ("0xF", Integer::new_hex_unspecified(15).unwrap()),
+            ("0xf", Integer::new_hex_unspecified(15).unwrap()),
+            ("0xFf", Integer::new_hex_unspecified(255).unwrap()),
+            ("0x11", Integer::new_hex_unspecified(17).unwrap()),
+            ("0o0_755", Integer::new_oct(493).unwrap()),
+            ("0b1_0_1", Integer::new_bin(5).unwrap()),
+            (&i64::MIN.to_string()[..], Integer::new(i64::MIN)),
+            (&i64::MAX.to_string()[..], Integer::new(i64::MAX)),
         ];
         for &(input, expected) in &cases {
             dbg!(input);

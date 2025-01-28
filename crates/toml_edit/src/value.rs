@@ -5,7 +5,7 @@ use toml_datetime::{Date, Datetime, Time};
 
 use crate::key::Key;
 use crate::repr::{Decor, Formatted};
-use crate::{Array, InlineTable, InternalString, RawString};
+use crate::{Array, InlineTable, Integer, InternalString, RawString};
 
 /// Representation of a TOML Value (as part of a Key/Value Pair).
 #[derive(Debug, Clone)]
@@ -13,7 +13,7 @@ pub enum Value {
     /// A string value.
     String(Formatted<String>),
     /// A 64-bit integer value.
-    Integer(Formatted<i64>),
+    Integer(Formatted<Integer>),
     /// A 64-bit float value.
     Float(Formatted<f64>),
     /// A boolean value.
@@ -55,9 +55,9 @@ impl Value {
     }
 
     /// Casts `self` to integer.
-    pub fn as_integer(&self) -> Option<i64> {
+    pub fn as_integer(&self) -> Option<&Integer> {
         match *self {
-            Value::Integer(ref value) => Some(*value.value()),
+            Value::Integer(ref value) => Some(value.value()),
             _ => None,
         }
     }
@@ -282,6 +282,12 @@ impl From<InternalString> for Value {
 
 impl From<i64> for Value {
     fn from(i: i64) -> Self {
+        Integer::new(i).into()
+    }
+}
+
+impl From<Integer> for Value {
+    fn from(i: Integer) -> Self {
         Value::Integer(Formatted::new(i))
     }
 }

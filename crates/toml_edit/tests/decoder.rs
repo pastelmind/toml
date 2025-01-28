@@ -40,7 +40,7 @@ fn value_to_decoded(
 ) -> Result<toml_test_harness::Decoded, toml_test_harness::Error> {
     match value {
         toml_edit::Value::Integer(v) => Ok(toml_test_harness::Decoded::Value(
-            toml_test_harness::DecodedValue::from(*v.value()),
+            toml_test_harness::DecodedValue::from(i64::from(v.value())),
         )),
         toml_edit::Value::String(v) => Ok(toml_test_harness::Decoded::Value(
             toml_test_harness::DecodedValue::from(v.value()),

@@ -66,7 +66,9 @@ impl<'de> serde::Deserializer<'de> for ValueDeserializer {
         match self.input {
             crate::Item::None => visitor.visit_none(),
             crate::Item::Value(crate::Value::String(v)) => visitor.visit_string(v.into_value()),
-            crate::Item::Value(crate::Value::Integer(v)) => visitor.visit_i64(v.into_value()),
+            crate::Item::Value(crate::Value::Integer(v)) => {
+                visitor.visit_i64(v.into_value().into())
+            }
             crate::Item::Value(crate::Value::Float(v)) => visitor.visit_f64(v.into_value()),
             crate::Item::Value(crate::Value::Boolean(v)) => visitor.visit_bool(v.into_value()),
             crate::Item::Value(crate::Value::Datetime(v)) => {

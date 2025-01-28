@@ -90,8 +90,8 @@
 //! [on GitHub](https://github.com/toml-rs/toml/blob/main/crates/toml_edit/examples/visit.rs).
 
 use crate::{
-    Array, ArrayOfTables, Datetime, DocumentMut, Formatted, InlineTable, Item, KeyMut, Table,
-    TableLike, Value,
+    Array, ArrayOfTables, Datetime, DocumentMut, Formatted, InlineTable, Integer, Item, KeyMut,
+    Table, TableLike, Value,
 };
 
 /// Document tree traversal to mutate an exclusive borrow of a document tree in-place.
@@ -148,7 +148,7 @@ pub trait VisitMut {
         visit_float_mut(self, node);
     }
 
-    fn visit_integer_mut(&mut self, node: &mut Formatted<i64>) {
+    fn visit_integer_mut(&mut self, node: &mut Formatted<Integer>) {
         visit_integer_mut(self, node);
     }
 
@@ -252,5 +252,5 @@ macro_rules! empty_visit_mut {
 empty_visit_mut!(visit_boolean_mut, Formatted<bool>);
 empty_visit_mut!(visit_datetime_mut, Formatted<Datetime>);
 empty_visit_mut!(visit_float_mut, Formatted<f64>);
-empty_visit_mut!(visit_integer_mut, Formatted<i64>);
+empty_visit_mut!(visit_integer_mut, Formatted<Integer>);
 empty_visit_mut!(visit_string_mut, Formatted<String>);

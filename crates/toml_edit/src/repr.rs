@@ -128,7 +128,7 @@ mod inner {
     use super::ValueRepr;
 
     impl ValueRepr for String {}
-    impl ValueRepr for i64 {}
+    impl ValueRepr for Integer {}
     impl ValueRepr for f64 {}
     impl ValueRepr for bool {}
     impl ValueRepr for toml_datetime::Datetime {}

@@ -4,7 +4,7 @@ use toml_datetime::Datetime;
 
 use crate::array_of_tables::ArrayOfTables;
 use crate::table::TableLike;
-use crate::{Array, InlineTable, Table, Value};
+use crate::{Array, InlineTable, Integer, Table, Value};
 
 /// Type representing either a value, a table, an array of tables, or none.
 #[derive(Debug, Default)]
@@ -197,7 +197,7 @@ impl Item {
     // Duplicate Value downcasting API
 
     /// Casts `self` to integer.
-    pub fn as_integer(&self) -> Option<i64> {
+    pub fn as_integer(&self) -> Option<&Integer> {
         self.as_value().and_then(Value::as_integer)
     }
 

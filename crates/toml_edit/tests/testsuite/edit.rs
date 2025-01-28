@@ -3,7 +3,7 @@ use std::iter::FromIterator;
 use snapbox::assert_data_eq;
 use snapbox::prelude::*;
 use snapbox::str;
-use toml_edit::{array, table, value, DocumentMut, Item, Key, Table, Value};
+use toml_edit::{array, table, value, DocumentMut, Integer, Item, Key, Table, Value};
 
 macro_rules! parse_key {
     ($s:expr) => {{
@@ -538,7 +538,7 @@ fn test_remove_last_value_from_implicit() {
         let value = value.unwrap();
         assert!(value.is_value());
         let value = value.as_value().unwrap();
-        assert_eq!(value.as_integer(), Some(1));
+        assert_eq!(value.as_integer(), Some(&Integer::new(1)));
     })
     .produces_display(str![]);
 }
@@ -894,7 +894,10 @@ fn test_as_table_like() {
         let a = a.unwrap();
         assert_eq!(a.iter().count(), 3);
         assert_eq!(a.len(), 3);
-        assert_eq!(a.get("a").and_then(Item::as_integer), Some(2));
+        assert_eq!(
+            a.get("a").and_then(Item::as_integer),
+            Some(&Integer::new(2))
+        );
 
         let b = root["b"].as_table_like();
         assert!(b.is_some());

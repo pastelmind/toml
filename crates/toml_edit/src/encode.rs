@@ -13,7 +13,7 @@ use crate::value::{
     DEFAULT_LEADING_VALUE_DECOR, DEFAULT_TRAILING_VALUE_DECOR, DEFAULT_VALUE_DECOR,
 };
 use crate::DocumentMut;
-use crate::{Array, InlineTable, Item, Table, Value};
+use crate::{Array, InlineTable, Integer, Item, Table, Value};
 
 pub(crate) fn encode_key(this: &Key, buf: &mut dyn Write, input: Option<&str>) -> Result {
     if let Some(input) = input {
@@ -513,7 +513,7 @@ fn infer_all_style(value: &str) -> (StringStyle, bool) {
     (ty, true)
 }
 
-impl ValueRepr for i64 {
+impl ValueRepr for Integer {
     fn to_repr(&self) -> Repr {
         Repr::new_unchecked(self.to_string())
     }

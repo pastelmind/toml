@@ -1,7 +1,7 @@
 use snapbox::assert_data_eq;
 use snapbox::prelude::*;
 use snapbox::str;
-use toml_edit::{DocumentMut, Key, Value};
+use toml_edit::{DocumentMut, Integer, Key, Value};
 
 macro_rules! parse {
     ($s:expr, $ty:ty) => {{
@@ -1061,11 +1061,11 @@ fn number_underscores() {
         }};
     }
 
-    t!("1_0", 10);
-    t!("1_0_0", 100);
-    t!("1_000", 1000);
-    t!("+1_000", 1000);
-    t!("-1_000", -1000);
+    t!("1_0", &Integer::new(10));
+    t!("1_0_0", &Integer::new(100));
+    t!("1_000", &Integer::new(1000));
+    t!("+1_000", &Integer::new(1000));
+    t!("-1_000", &Integer::new(-1000));
 }
 
 #[test]
@@ -1579,7 +1579,7 @@ fn despan_keys() {
     let table = doc.as_table_mut();
     table.insert_formatted(
         &key,
-        toml_edit::Item::Value(Value::Integer(toml_edit::Formatted::new(2))),
+        toml_edit::Item::Value(Value::Integer(toml_edit::Formatted::new(Integer::new(2)))),
     );
 
     assert_eq!(doc.to_string(), "aaaaaa = 1\nbbb = 2\n");

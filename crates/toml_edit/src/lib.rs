@@ -84,6 +84,7 @@ mod encode;
 mod error;
 mod index;
 mod inline_table;
+mod integer;
 mod internal_string;
 mod item;
 mod key;
@@ -116,6 +117,7 @@ pub use crate::inline_table::{
     InlineEntry, InlineOccupiedEntry, InlineTable, InlineTableIntoIter, InlineTableIter,
     InlineTableIterMut, InlineVacantEntry,
 };
+pub use crate::integer::{Integer, IntegerError};
 pub use crate::internal_string::InternalString;
 pub use crate::item::{array, table, value, Item};
 pub use crate::key::{Key, KeyMut};
@@ -133,7 +135,7 @@ pub(crate) mod private {
     impl Sealed for usize {}
     impl Sealed for str {}
     impl Sealed for String {}
-    impl Sealed for i64 {}
+    impl Sealed for crate::Integer {}
     impl Sealed for f64 {}
     impl Sealed for bool {}
     impl Sealed for crate::Datetime {}
