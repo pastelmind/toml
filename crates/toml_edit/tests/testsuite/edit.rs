@@ -3,7 +3,10 @@ use std::iter::FromIterator;
 use snapbox::assert_data_eq;
 use snapbox::prelude::*;
 use snapbox::str;
-use toml_edit::{array, table, value, DocumentMut, Item, Key, Table, Value};
+use toml_edit::{
+    array, table, value, DocumentMut, Formatted, IntegerFormat, IntegerFormatNotation, Item, Key,
+    Table, Value,
+};
 
 macro_rules! parse_key {
     ($s:expr) => {{
@@ -1479,4 +1482,61 @@ tool = { typst-test.tests = "tests" }
 
 "#]]
     );
+}
+
+#[test]
+fn integer_bases() {
+    given(r#"[table]"#)
+        .running(|root| {
+            let table = root.get_mut("table").unwrap().as_table_mut().unwrap();
+
+            let mut hex_upper = Formatted::new(42);
+            assert!(
+                hex_upper.format(IntegerFormat::new().notation(IntegerFormatNotation::HexUpper))
+            );
+            table["hex_upper"] = Value::Integer(hex_upper).into();
+
+            let mut hex_lower = Formatted::new(42);
+            assert!(
+                hex_lower.format(IntegerFormat::new().notation(IntegerFormatNotation::HexLower))
+            );
+            table["hex_lower"] = Value::Integer(hex_lower).into();
+
+            let mut octal = Formatted::new(42);
+            assert!(octal.format(IntegerFormat::new().notation(IntegerFormatNotation::Octal)));
+            table["octal"] = Value::Integer(octal).into();
+
+            let mut binary = Formatted::new(42);
+            assert!(binary.format(IntegerFormat::new().notation(IntegerFormatNotation::Binary)));
+            table["binary"] = Value::Integer(binary).into();
+        })
+        .produces_display(str![[r#"
+[table]
+hex_upper = 0x2A
+hex_lower = 0x2a
+octal = 0o52
+binary = 0b101010
+
+"#]]);
+}
+
+#[test]
+fn integer_bases_reject_negative() {
+    let original = Formatted::new(-42);
+
+    let mut mutated = original.clone();
+    assert!(!mutated.format(IntegerFormat::new().notation(IntegerFormatNotation::HexUpper)));
+    assert_eq!(mutated, original);
+
+    let mut mutated = original.clone();
+    assert!(!mutated.format(IntegerFormat::new().notation(IntegerFormatNotation::HexLower)));
+    assert_eq!(mutated, original);
+
+    let mut mutated = original.clone();
+    assert!(!mutated.format(IntegerFormat::new().notation(IntegerFormatNotation::Octal)));
+    assert_eq!(mutated, original);
+
+    let mut mutated = original.clone();
+    assert!(!mutated.format(IntegerFormat::new().notation(IntegerFormatNotation::Binary)));
+    assert_eq!(mutated, original);
 }

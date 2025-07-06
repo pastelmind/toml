@@ -91,6 +91,45 @@ where
     }
 }
 
+impl Formatted<i64> {
+    /// Formats the value using the given format and returns success status.
+    ///
+    /// If the given format is unsupported for the current value (e.g. binary
+    /// binary notation for a negative number), this leaves `self` unchanged and
+    /// returns `false`.
+    #[must_use]
+    pub fn format(&mut self, format: IntegerFormat) -> bool {
+        self.repr = Some(match format.notation {
+            IntegerFormatNotation::Decimal => Repr::new_unchecked(self.value.to_string()),
+            IntegerFormatNotation::HexUpper => {
+                if self.value < 0 {
+                    return false;
+                }
+                Repr::new_unchecked(format!("0x{:X}", self.value))
+            }
+            IntegerFormatNotation::HexLower => {
+                if self.value < 0 {
+                    return false;
+                }
+                Repr::new_unchecked(format!("0x{:x}", self.value))
+            }
+            IntegerFormatNotation::Octal => {
+                if self.value < 0 {
+                    return false;
+                }
+                Repr::new_unchecked(format!("0o{:o}", self.value))
+            }
+            IntegerFormatNotation::Binary => {
+                if self.value < 0 {
+                    return false;
+                }
+                Repr::new_unchecked(format!("0b{:b}", self.value))
+            }
+        });
+        true
+    }
+}
+
 impl<T> std::fmt::Debug for Formatted<T>
 where
     T: std::fmt::Debug,
@@ -273,4 +312,40 @@ impl std::fmt::Debug for Decor {
         };
         d.finish()
     }
+}
+
+/// Describes how to format an integer value.
+#[non_exhaustive]
+pub struct IntegerFormat {
+    notation: IntegerFormatNotation,
+}
+
+impl IntegerFormat {
+    /// Creates a new integer format with the default base (decimal).
+    pub fn new() -> Self {
+        Self {
+            notation: IntegerFormatNotation::Decimal,
+        }
+    }
+
+    /// Sets the integer notation.
+    pub fn notation(mut self, notation: IntegerFormatNotation) -> Self {
+        self.notation = notation;
+        self
+    }
+}
+
+/// Specifies the notation (base) for integer formatting.
+#[non_exhaustive]
+pub enum IntegerFormatNotation {
+    /// Decimal notation (default)
+    Decimal,
+    /// Hexadecimal notation (all uppercase). Not allowed for negative numbers.
+    HexUpper,
+    /// Hexadecimal notation (all lowercase). Not allowed for negative numbers.
+    HexLower,
+    /// Octal notation. Not allowed for negative numbers.
+    Octal,
+    /// Binary notation. Not allowed for negative numbers.
+    Binary,
 }

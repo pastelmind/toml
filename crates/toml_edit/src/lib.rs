@@ -118,7 +118,7 @@ pub use crate::inline_table::{
 pub use crate::item::{array, table, value, Item};
 pub use crate::key::{Key, KeyMut};
 pub use crate::raw_string::RawString;
-pub use crate::repr::{Decor, Formatted, Repr};
+pub use crate::repr::{Decor, Formatted, IntegerFormat, IntegerFormatNotation, Repr};
 pub use crate::table::{
     Entry, IntoIter, Iter, IterMut, OccupiedEntry, Table, TableLike, VacantEntry,
 };
